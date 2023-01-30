@@ -3,6 +3,7 @@ package com.abnamro.recipes.web.controller;
 import com.abnamro.recipes.entity.Ingredient;
 import com.abnamro.recipes.entity.Recipe;
 import com.abnamro.recipes.repository.RecipeRepository;
+import com.abnamro.recipes.web.dto.RecipeDto;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +20,9 @@ import org.springframework.web.client.RestTemplate;
 import java.util.List;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.http.HttpMethod.POST;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class RecipeControllerTest {
@@ -72,5 +75,18 @@ class RecipeControllerTest {
 
     @Test
     void createRecipe() {
+        RecipeDto recipeDto = new RecipeDto();
+        recipeDto.setName("Gheyme Bademjoon");
+        recipeDto.setIngredients(List.of("Eggplant", "Tomato pure", "Meat"));
+        recipeDto.setNumberOfServings(4);
+        recipeDto.setVegetarian(false);
+        recipeDto.setInstruction("XYZ");
+
+        HttpEntity<RecipeDto> requestEntity = new HttpEntity<>(recipeDto, headers);
+
+        Recipe newRecipe = restTemplate.exchange(baseUrl, POST, requestEntity, Recipe.class).getBody();
+
+        assertNotNull(newRecipe);
+        assertThat(newRecipe.getId()).isNotNull();
     }
 }
