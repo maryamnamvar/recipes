@@ -1,0 +1,230 @@
+openapi: 3.0.1
+info:
+  title: Recipe Service
+  version: 1.0.0
+paths:
+  /api/v1/recipes:
+    get:
+      summary: Fetch all recipes for a specified user
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        200:
+          description: List of recipes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecipeDto'
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDto'
+        500:
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDto'
+    post:
+      summary: Create a new recipe
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeDto'
+      responses:
+        201:
+          description: Created!
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeDto'
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDto'
+        500:
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDto'
+    put:
+      summary: Update an existing recipe
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeDto'
+      responses:
+        201:
+          description: Updated!
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeDto'
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDto'
+        404:
+          description: Recipe not found!
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDto'
+        500:
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDto'
+  /api/v1/recipes/{id}:
+    delete:
+      summary: Delete an existing recipe
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        204:
+          description: Recipe Deleted!
+          content: { }
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDto'
+        404:
+          description: Recipe not found!
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDto'
+        500:
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDto'
+  /api/v1/recipes/filter:
+    get:
+      summary: Filter recipes based on different fields
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeFilter'
+      responses:
+        200:
+          description: List of recipes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecipeDto'
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDto'
+        500:
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDto'
+components:
+  parameters:
+    userId:
+      name: userId
+      in: header
+      required: true
+      schema:
+        type: string
+
+  schemas:
+    RecipeDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          nullable: true
+        name:
+          type: string
+          nullable: false
+        description:
+          type: string
+          nullable: true
+        instruction:
+          type: string
+          nullable: false
+        ingredients:
+          type: array
+          items:
+            type: string
+          nullable: false
+        vegetarian:
+          type: boolean
+          default: false
+        numberOfServings:
+          type: integer
+          nullable: false
+    RecipeFilter:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        instruction:
+          type: string
+          nullable: true
+        ingredients:
+          type: object
+          description: the name of ingredient
+          additionalProperties:
+            type: string
+            description: include or exclude
+            enum:
+              - in
+              - ex
+          nullable: true
+          example: {"bread":"in", "tomatoes": "in", "tuna": "ex"}
+        vegetarian:
+          type: boolean
+          nullable: true
+        numberOfServings:
+          type: integer
+          nullable: true
+    ProblemDto:
+      type: object
+      properties:
+        dateTime:
+          type: string
+          format: date-time
+        error:
+          type: string
